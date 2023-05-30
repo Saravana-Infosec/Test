@@ -1,79 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.snapattack.dvlog4ja</groupId>
-    <artifactId>com.snapattack.dvlog4ja</artifactId>
-    <version>1.0</version>
-    <packaging>war</packaging>
-    <name>Damn Vulnerable Log4j App (Java 1.8 / Tomcat 9)</name>
-    
-    <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <failOnMissingWebXml>false</failOnMissingWebXml>
-    </properties>
-    
-    <dependencies>
-        <!-- the REST API -->
-        <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>javax.ws.rs-api</artifactId>
-            <version>2.1.1</version>
-        </dependency>
-        
-        <!-- These next dependencies are needed because we are using Tomcat, which  -->
-        <!-- is not a full JEE server - it's just a servlet container.     -->
+    <parent>
+        <artifactId>customer-acceptance-policy</artifactId>
+        <groupId>com.monese.onboarding</groupId>
+        <version>${revision}</version>
+    </parent>
 
-        <!-- the Jersey implementation -->
+    <artifactId>onboarding-cap-service</artifactId>
+
+    <properties>
+        <springfox-swagger.version>2.8.0</springfox-swagger.version>
+        <log4j2.version>2.17.1</log4j2.version>
+    </properties>
+
+    <dependencies>
+        <!-- Monese Schema -->
         <dependency>
-            <groupId>org.glassfish.jersey.containers</groupId>
-            <artifactId>jersey-container-servlet</artifactId>
-            <version>2.35</version>
+            <groupId>com.monese.onboarding.cap</groupId>
+            <artifactId>customer-data</artifactId>
+            <version>${revision}</version>
         </dependency>
         <dependency>
-            <groupId>org.glassfish.jersey.inject</groupId>
-            <artifactId>jersey-hk2</artifactId>
-            <version>2.35</version>
-        </dependency>
-        
-        <!-- vulnerable log4j version -->
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>2.14.1</version>
+            <groupId>com.monese.schema</groupId>
+            <artifactId>monese-schema-all</artifactId>
+            <version>${monese.schema.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.14.1</version>
+            <groupId>com.monese.schema</groupId>
+            <artifactId>monese-schema-onboarding</artifactId>
+            <version>${monese.schema.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.monese.schema</groupId>
+            <artifactId>monese-schema-jackson</artifactId>
+            <version>${monese.schema.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.monese.queuing</groupId>
+            <artifactId>monese-queuing-autoconfigure</artifactId>
+            <version>${monese.queuing.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.monese.schema</groupId>
+                    <artifactId>monese-schema-all</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.monese.schema</groupId>
+            <artifactId>monese-schema-json</artifactId>
+            <version>0.25.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.monese.onboarding.common</groupId>
+            <artifactId>messaging-provider</artifactId>
+            <version>3.27.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.monese.onboarding.common</groupId>
+            <artifactId>service-info</artifactId>
+            <version>3.22.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.monese.onboarding.common</groupId>
+            <artifactId>http-client</artifactId>
+            <version>1.8.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.monese.device</groupId>
+            <artifactId>device-service-sdk</artifactId>
+            <version>1.7.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.monese.onboarding.common</groupId>
+            <artifactId>external-messaging</artifactId>
+            <version>1.4.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.monese</groupId>
+            <artifactId>message-service-client-awssdk2</artifactId>
+            <version>1.27.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.monese.onboarding.common</groupId>
+            <artifactId>classificator-client</artifactId>
+            <version>1.2.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.monese.onboarding.common</groupId>
+            <artifactId>s3-client</artifactId>
+            <version>1.4.0</version>
+        </dependency>
+
+        <!-- Spring -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jdbc</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+
+        <!-- Google Maps -->
+
+        <dependency>
+            <groupId>net.sf.geographiclib</groupId>
+            <artifactId>GeographicLib-Java</artifactId>
+            <version>1.50</version>
+        </dependency>
+
+        <!-- Logging -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-log4j2</artifactId>
+        </dependency>
+
+        <!-- Use Swagger for generating documentation -->
+
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>${springfox-swagger.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>${springfox-swagger.version}</version>
+        </dependency>
+
+        <!-- AWS -->
+
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>sts</artifactId>
+        </dependency>
+
+        <!-- DB tools -->
+
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.monese.onboarding</groupId>
+            <artifactId>onboarding-cap-dbm-changelog</artifactId>
+            <version>${revision}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Varia -->
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+            <version>2.8.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.newrelic.telemetry</groupId>
+            <artifactId>micrometer-registry-new-relic</artifactId>
+            <version>0.7.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.zalando</groupId>
+            <artifactId>tracer-spring-boot-starter</artifactId>
+            <version>0.17.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.javacrumbs.shedlock</groupId>
+            <artifactId>shedlock-spring</artifactId>
+            <version>4.36.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.javacrumbs.shedlock</groupId>
+            <artifactId>shedlock-provider-jdbc-template</artifactId>
+            <version>4.36.0</version>
+        </dependency>
+
+        <!-- Tests -->
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
         </dependency>
 
     </dependencies>
-    
-     <build>
+
+    <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <compilerArguments>
-                        <endorseddirs>${endorsed.dir}</endorseddirs>
-                    </compilerArguments>
-                </configuration>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>build-info</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
+
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>3.3.1</version>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>3.0.0</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <failOnMissingWebXml>true</failOnMissingWebXml>
+                    <forkCount>0</forkCount>
+                    <argLine>--illegal-access=permit</argLine>
                 </configuration>
             </plugin>
         </plugins>
     </build>
+
 </project>
