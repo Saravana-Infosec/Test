@@ -228,7 +228,7 @@
         <dependency>
             <groupId>net.javacrumbs.shedlock</groupId>
             <artifactId>shedlock-spring</artifactId>
-            <version>4.36.0</version>
+            <version>4.44.0</version>
         </dependency>
 
         <dependency>
